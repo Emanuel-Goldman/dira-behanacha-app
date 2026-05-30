@@ -1,0 +1,128 @@
+---
+description: Spec for the אישור זכאות guide page — content, structure, routing, and styling
+globs: src/pages/ZkautGuide.jsx
+alwaysApply: false
+---
+# אישור זכאות Guide Page
+
+## Purpose
+
+`src/pages/ZkautGuide.jsx` is a static, Hebrew RTL guide that explains how to obtain an eligibility certificate (אישור זכאות) for the דירה בהנחה housing lottery program. It contains no data fetching — all content is hardcoded.
+
+## Routing
+
+- Route: `/guide` (registered in `src/App.jsx` via React Router v6 `BrowserRouter`)
+- Entry point: "מדריך הוצאת אישור זכאות ←" link in the `.status-bar` of `src/pages/HomePage.jsx`
+- Back navigation: `<Link to="/">← חזרה לדף הראשי</Link>` at the top of the guide (uses `.back-link` class)
+
+## Page Structure
+
+The component returns a `<main className="app" dir="rtl">` (reuses the existing app shell class). Inside:
+
+1. `<header className="hero">` — back link + `<h1>` + `.subtitle`
+2. Five `<section className="guide-section">` blocks (in order):
+   - **שלבי התהליך** — numbered steps
+   - **חברות האכלוס המורשות** — registration companies
+   - **מי זכאי?** — eligibility categories + housing status
+   - **מסמכים נדרשים** — required documents list
+   - **עלויות ותוקף** — costs table
+3. `<footer className="footnote">` — source attribution links
+
+## Content
+
+### Steps (`STEPS` array, rendered as `.guide-steps` `<ol>`)
+
+Each step has `{ title, body }`. The five steps are:
+1. בדוק שאתה עומד בתנאי הזכאות — check eligibility (no ownership of >1/3 of property in last 3 years)
+2. בחר חברת אכלוס ופנה אליה — pick one of the three authorized companies
+3. מלא טופס בקשה ושלם 200 ₪ — online application needs no documents; in-person does
+4. קבל את האישור — up to 10 business days; you receive an eligibility number (used as initial password)
+5. הירשם לאתר ההגרלות — log in to dira.moch.gov.il with ID + eligibility number
+
+Rendered as `<li className="guide-step">` with a blue circle badge (`.guide-step-num`) + title (`.guide-step-title`) + body paragraph (`.guide-step-body`).
+
+### Companies (`COMPANIES` array, rendered as `.guide-companies` 3-column grid)
+
+| name  | short  | href                        | label              |
+|-------|--------|-----------------------------|--------------------|
+| אלונים | *2850 | https://www.alonim.co.il   | alonim.co.il       |
+| מילגם  | *6078 | https://shikun.milgam.co.il | milgam.co.il      |
+| מעוף   | *9344 | https://www.shikun-maof.co.il | shikun-maof.co.il |
+
+Each card: `.guide-company-card` with `.guide-company-name`, `.guide-company-phone` (the short dial code), `.guide-company-link` (external link).
+
+### Eligibility (`ELIGIBILITY_GROUPS` array)
+
+Five categories rendered as `.guide-eligibility-list`:
+- זוגות נשואים / ידועים בציבור — המנהלים משק בית משותף
+- זוגות עתידיים לנישואין — בתוך 3 חודשים ממועד הגשת הבקשה
+- הורים עם ילד מתחת לגיל 21 — כולל הורים יחידניים, גרושים ואלמנים/ות
+- רווקים מגיל 35 ומעלה — כולל פרודים ואלמנים ללא ילדים
+- בעלי מוגבלות מגיל 21 — נכות 75%+ מביטוח לאומי / משרד הביטחון
+
+Housing status rendered as `.guide-two-col` two-column grid (`.guide-info-card`):
+- **חסרי דירה**: no ownership of >1/3 of property, no protected tenancy, no agricultural settlement — in the past 3 years
+- **משפרי דיור**: previously owned, must sell within 12 months of receiving keys
+
+### Documents (`.guide-docs-list` `<ul>`)
+
+Note first: online application needs no documents. In-person / special cases:
+- תעודות זהות (מקור + צילום)
+- גרושים / פרודים: פסיקתא / הסכם גירושין (עד 10 שנים)
+- זוגות עתידיים: הצהרה חתומה בפני עורך-דין / אישור רבני
+- הורים יחידניים: הסכם גירושין מאושר בית-משפט + תצהיר
+- בעלי מוגבלות: אישור נכות מביטוח לאומי / משרד הביטחון
+- משפרי דיור: חוזה רכישה, חוזה מכירה, או נסח טאבו
+
+### Costs (`.guide-costs` bordered table)
+
+| label                              | amount   |
+|------------------------------------|----------|
+| אישור חדש                          | 200 ₪    |
+| חידוש בתוך 60 יום מפקיעה          | 50 ₪     |
+| חידוש לאחר פקיעה (מעל 60 יום)     | 200 ₪    |
+| תוקף האישור *(highlighted row)*    | שנה אחת  |
+
+Note below: winners whose certificate expired can renew for 50 ₪ even after 60 days; ministry may re-verify eligibility at its discretion.
+
+### Footer
+
+Sources: כל-זכות (kolzchut.org.il) and משרד הבינוי והשיכון (dira.moch.gov.il).
+
+## CSS Classes (all defined in `src/index.css`)
+
+| Class | Purpose |
+|---|---|
+| `.guide-nav-link` | Link in HomePage status-bar pointing to `/guide` |
+| `.guide-section` | White card with border, border-radius 12px, box-shadow |
+| `.guide-section-title` | Section `<h2>`, with bottom border separator |
+| `.guide-sub-title` | Section `<h3>` within a guide-section |
+| `.guide-body-text` | Intro paragraph inside a section |
+| `.guide-steps` | `<ol>` reset (no list-style, flex column) |
+| `.guide-step` | Flex row: circle badge + content |
+| `.guide-step-num` | Blue circle badge with step number |
+| `.guide-step-title` | Bold step heading |
+| `.guide-step-body` | Step explanation paragraph |
+| `.guide-companies` | 3-column CSS grid (collapses to 1 on ≤600px) |
+| `.guide-company-card` | Card for one company |
+| `.guide-company-name` | Company name |
+| `.guide-company-phone` | Short dial code (*XXXX), accent color, bold |
+| `.guide-company-link` | External link, muted color |
+| `.guide-eligibility-list` | `<ul>` reset, flex column |
+| `.guide-eligibility-item` | Row with label + detail, light background |
+| `.guide-eligibility-label` | Bold category name |
+| `.guide-eligibility-detail` | Muted detail text |
+| `.guide-two-col` | 2-column grid (collapses to 1 on ≤600px) |
+| `.guide-info-card` | Card for housing-status explanation |
+| `.guide-docs-list` | `<ul>` with right padding, flex column |
+| `.guide-costs` | Bordered table container |
+| `.guide-cost-row` | Flex row: label + amount, border-bottom |
+| `.guide-cost-row--highlight` | Light background for the validity row |
+| `.guide-cost-label` | Row description |
+| `.guide-cost-amount` | Row value, bold, tabular numerals |
+| `.guide-note` | Small muted footnote paragraph |
+
+## Sources used for content
+
+- https://www.kolzchut.org.il — primary source for eligibility rules, documents, costs, validity
+- https://dira.moch.gov.il — official government lottery site
