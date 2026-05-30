@@ -61,6 +61,12 @@ export default function App() {
       </header>
 
       <WinProbabilityChart data={cityStats} loading={loading} />
+
+      <footer className="footnote">
+        * סיכוי הזכייה מחושבים על ידי סכימת הדירות המוצעות בעיר חלקי המספר
+        המקסימלי של נרשמים באחד הפרוייקטים בעיר - מספר הדירות בעיר ÷ מקסימום
+        הנרשמים בעיר × 100.
+      </footer>
     </main>
   );
 }

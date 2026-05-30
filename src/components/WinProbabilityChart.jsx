@@ -3,8 +3,6 @@ const percentFmt = new Intl.NumberFormat('he-IL', {
   maximumFractionDigits: 1,
 });
 
-const numberFmt = new Intl.NumberFormat('he-IL');
-
 const BAR_HEIGHT_PX = 220;
 
 export default function WinProbabilityChart({ data, loading }) {
@@ -20,10 +18,7 @@ export default function WinProbabilityChart({ data, loading }) {
 
   return (
     <section className="chart-panel" aria-label="אחוז זכייה לפי עיר">
-      <h2 className="chart-title">אחוז זכייה לפי עיר</h2>
-      <p className="chart-subtitle">
-        סכום דירות בעיר ÷ מקסימום נרשמים בעיר × 100
-      </p>
+      <h2 className="chart-title">אחוז זכייה לפי עיר*</h2>
 
       <div className="chart-plot">
         <div className="chart-bars">
@@ -41,10 +36,6 @@ export default function WinProbabilityChart({ data, loading }) {
                 </div>
                 <div className="chart-label" title={row.city}>
                   {row.city}
-                </div>
-                <div className="chart-meta">
-                  {numberFmt.format(row.totalApartments)} דירות ·{' '}
-                  {numberFmt.format(row.maxSubscribers)} נרשמים
                 </div>
               </div>
             );
