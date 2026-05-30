@@ -18,7 +18,7 @@ export async function fetchOpenLotteries({ signal } = {}) {
   if (!res.ok) {
     if (res.status === 404) {
       throw new Error(
-        'data.json לא נמצא — יש להריץ את scraper/dira_scraper.py'
+        'data.json לא נמצא - יש להריץ את scraper/dira_scraper.py'
       );
     }
     throw new Error(`Request failed (HTTP ${res.status})`);

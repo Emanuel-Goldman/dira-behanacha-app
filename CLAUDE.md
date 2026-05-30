@@ -12,6 +12,9 @@ A React + Vite single-page app that displays currently open "דירה בהנחה
 # Frontend dev server
 npm run dev
 
+# Build only (outputs to dist/)
+npm run build
+
 # Build + deploy to Firebase Hosting (https://dira-behanacha.web.app)
 npm run deploy
 
@@ -40,7 +43,25 @@ scraper/dira_scraper.py  ──writes──►  public/data.json  ◄──reads
 
 **Scraper** (`scraper/dira_scraper.py`): Fetches pages 1 and 2 of `ProjectStatus=4` (open for registration) lotteries from `https://dira.moch.gov.il/api/Invoker`. Writes the merged result atomically to `public/data.json` (via temp file → rename so the frontend never reads a half-written file). Runs as a long-lived loop or as a one-shot via `--once` (suited for cron/systemd).
 
-**Frontend** (`src/api/dira.js`): Reads `/data.json` with `cache: 'no-store'`. If the file is missing (404), it surfaces a Hebrew error message telling the user to run the scraper. `src/App.jsx` polls every hour via `setInterval` and exposes a manual refresh button.
+**Frontend** (`src/api/dira.js`): Reads `/data.json` with `cache: 'no-store'`. If the file is missing (404), it surfaces a Hebrew error message telling the user to run the scraper. `useLotteryData` hook (`src/hooks/useLotteryData.js`) fetches on mount and polls every hour; each page mounts its own hook instance — there is no shared or cached state between routes.
+
+## Frontend pages and routing
+
+Routes are registered in `src/App.jsx` using React Router v6 `BrowserRouter`:
+
+| Route | Component | Description |
+|---|---|---|
+| `/` | `HomePage` | City-level win probability chart + summary counts |
+| `/city/:cityName` | `CityPage` | Project-level chart for a single city |
+| `/guide` | `ZkautGuide` | Static eligibility certificate guide — no data fetching |
+
+`WinProbabilityChart` (`src/components/WinProbabilityChart.jsx`) is the only shared UI component; it renders a horizontal bar chart and is used by both `HomePage` and `CityPage`.
+
+Win probability formulas (from `src/utils/winProbability.js`):
+- **City view**: `sum(LotteryApparmentsNum for city) ÷ max(TotalSubscribers in city) × 100`
+- **Project view**: `LotteryApparmentsNum ÷ TotalSubscribers × 100`
+
+The full content spec for `ZkautGuide` (steps, companies, eligibility groups, documents, costs, CSS classes) lives in `.cursor/rules/zkaut-guide-page.mdc`.
 
 **Firebase Hosting** (`firebase.json`): Serves `dist/` with a `**` → `/index.html` rewrite for SPA routing. Cache headers on `/assets/**` are set to immutable. `src/firebase.js` exists but is not imported anywhere in the app — it's leftover from an earlier Firebase integration attempt.
 

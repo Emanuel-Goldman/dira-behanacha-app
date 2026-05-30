@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { useMemo } from 'react';
 import WinProbabilityChart from '../components/WinProbabilityChart.jsx';
 import useLotteryData from '../hooks/useLotteryData.js';
@@ -26,6 +27,9 @@ export default function HomePage() {
               ? 'טוען…'
               : `${cityStats.length} ערים · ${items.length} הגרלות`}
           </span>
+          <Link to="/guide" className="guide-nav-link">
+            מדריך הוצאת אישור זכאות ←
+          </Link>
         </div>
 
         {error && <div className="error">שגיאה בטעינה: {error}</div>}
