@@ -1,9 +1,14 @@
 // Talks to the official "Dira BeHanacha" Invoker endpoint that the SPA at
-// https://dira.moch.gov.il/ProjectsList uses internally. The endpoint returns
-// JSON with `access-control-allow-origin: *`, so we can call it from a pure
-// frontend without a backend or CORS proxy.
+// https://dira.moch.gov.il/ProjectsList uses internally. The endpoint sends
+// `Access-Control-Allow-Origin: *` twice (origin + CloudFront), which browsers
+// reject as malformed CORS, so we route requests through Vite's dev proxy
+// (configured in vite.config.js as `/dira-api`).
 
-const BASE_URL = 'https://dira.moch.gov.il/api/Invoker';
+// In dev, this resolves through Vite's proxy (`server.proxy['/dira-api']` in
+// vite.config.js) so the browser sees a same-origin response. The upstream
+// response contains `Access-Control-Allow-Origin: *` twice, which browsers
+// reject as malformed CORS — proxying sidesteps that entirely.
+const BASE_URL = '/dira-api/Invoker';
 
 // ProjectStatus=4 corresponds to "פתוחות להרשמה" (open for registration).
 // Entitlement=1 mirrors the SPA's default search params and currently returns
@@ -34,11 +39,16 @@ async function fetchProjectsPage(pageNumber, pageSize = 50, signal) {
 
   const url = `${BASE_URL}?method=Projects&param=${encodeURIComponent(inner)}`;
 
-  const res = await fetch(url, {
-    method: 'GET',
-    headers: { Accept: 'application/json' },
-    signal,
-  });
+  let res;
+  try {
+    res = await fetch(url, {
+      method: 'GET',
+      headers: { Accept: 'application/json' },
+      signal,
+    });
+  } catch (err) {
+    throw err;
+  }
 
   if (!res.ok) {
     throw new Error(`Request failed (HTTP ${res.status})`);

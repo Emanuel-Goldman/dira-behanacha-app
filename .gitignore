@@ -2,6 +2,9 @@ node_modules
 dist
 dist-ssr
 .vite
+.firebase
+firebase-debug.log
+firestore-debug.log
 
 *.local
 .env

@@ -42,3 +42,23 @@ If a Firebase env var is missing the app will throw on load with a clear message
 npm run build
 npm run preview
 ```
+
+## Deploy to Firebase Hosting
+
+The site lives at https://dira-behanacha.web.app once deployed.
+
+Prerequisites (one-time):
+
+```bash
+npm install -g firebase-tools
+firebase login
+```
+
+Then to build and deploy:
+
+```bash
+npm run deploy
+```
+
+This runs `vite build` and then `firebase deploy --only hosting`, pushing the
+contents of `dist/` to the `dira-behanacha` project (configured in `.firebaserc`).
