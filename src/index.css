@@ -1,6 +1,6 @@
 :root {
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  color-scheme: light dark;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Heebo", sans-serif;
+  color-scheme: dark;
   background-color: #0f1115;
   color: #f5f5f5;
 }
@@ -14,33 +14,171 @@ body {
   min-height: 100vh;
 }
 
+a {
+  color: #7fb3ff;
+}
+
 .app {
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
-  padding: 2rem;
-  text-align: center;
+  padding: 2.5rem clamp(1rem, 4vw, 3rem) 4rem;
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
-.app h1 {
-  font-size: clamp(2.5rem, 6vw, 5rem);
+.hero h1 {
+  font-size: clamp(2.25rem, 5vw, 3.75rem);
   font-weight: 700;
   letter-spacing: -0.02em;
-  margin: 0;
+  margin: 0 0 0.5rem;
 }
 
-.firebase-status {
-  margin: 0;
-  opacity: 0.75;
+.subtitle {
+  margin: 0 0 1.5rem;
+  color: #b9c0cc;
+  font-size: 1.05rem;
+}
+
+.status-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.pill {
+  background: #1c2230;
+  border: 1px solid #2a3142;
+  padding: 0.4rem 0.85rem;
+  border-radius: 999px;
+  font-weight: 600;
+}
+
+.meta {
+  color: #9aa3b2;
+  font-size: 0.9rem;
+}
+
+.refresh {
+  margin-inline-start: auto;
+  background: #2563eb;
+  color: white;
+  border: none;
+  padding: 0.5rem 1.1rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.refresh:hover:not(:disabled) {
+  background: #1d4fd6;
+}
+
+.refresh:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+.error {
+  background: #2a1518;
+  border: 1px solid #5b2228;
+  color: #ffb4ba;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.table-wrap {
+  overflow-x: auto;
+  border: 1px solid #232938;
+  border-radius: 14px;
+  background: #141823;
+}
+
+table.lotteries {
+  width: 100%;
+  border-collapse: collapse;
   font-size: 0.95rem;
 }
 
-.firebase-status code {
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  background: rgba(255, 255, 255, 0.08);
-  padding: 0.15rem 0.4rem;
-  border-radius: 4px;
+table.lotteries thead th {
+  position: sticky;
+  top: 0;
+  background: #1a2030;
+  color: #cdd5e3;
+  font-weight: 600;
+  text-align: start;
+  padding: 0.85rem 0.75rem;
+  border-bottom: 1px solid #2a3142;
+  white-space: nowrap;
+}
+
+table.lotteries tbody td {
+  padding: 0.75rem;
+  border-bottom: 1px solid #1f2533;
+  vertical-align: middle;
+}
+
+table.lotteries tbody tr:hover {
+  background: #19202d;
+}
+
+td.num {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+td.price {
+  font-weight: 600;
+  color: #ffd380;
+}
+
+.project-name {
+  font-weight: 600;
+}
+
+.project-sub {
+  color: #98a2b3;
+  font-size: 0.82rem;
+  margin-top: 0.15rem;
+}
+
+.contractor {
+  color: #c8cdd8;
+  max-width: 240px;
+}
+
+.details {
+  display: inline-block;
+  padding: 0.35rem 0.75rem;
+  border: 1px solid #2a3142;
+  border-radius: 6px;
+  text-decoration: none;
+  color: #cdd5e3;
+  background: #1a2030;
+  white-space: nowrap;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.details:hover {
+  background: #232a3b;
+  border-color: #3a4258;
+}
+
+.empty {
+  text-align: center;
+  padding: 2rem;
+  color: #9aa3b2;
+}
+
+@media (max-width: 720px) {
+  .status-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .refresh {
+    margin-inline-start: 0;
+  }
 }
