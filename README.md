@@ -36,6 +36,50 @@ Then open the URL printed in the terminal (typically http://localhost:5173).
 The page should render and show `Connected to Firebase project: dira-behanacha`.
 If a Firebase env var is missing the app will throw on load with a clear message.
 
+## Lottery data scraper
+
+The frontend cannot call `dira.moch.gov.il` directly from the browser: the
+upstream API sends `Access-Control-Allow-Origin: *` twice in its response,
+which browsers reject as malformed CORS. Instead, a Python script fetches the
+data on a schedule and writes it to `public/data.json`, which the React app
+reads as a same-origin static asset.
+
+### One-time setup
+
+```bash
+python3 -m venv scraper/.venv
+scraper/.venv/bin/pip install -r scraper/requirements.txt
+```
+
+### Refresh the data
+
+Single fetch (good for cron, GitHub Actions, or just before `npm run dev`):
+
+```bash
+scraper/.venv/bin/python scraper/dira_scraper.py --once
+```
+
+Run forever, refreshing every hour (Ctrl+C to stop):
+
+```bash
+scraper/.venv/bin/python scraper/dira_scraper.py
+```
+
+Custom interval (in seconds):
+
+```bash
+scraper/.venv/bin/python scraper/dira_scraper.py --interval 600
+```
+
+The script writes atomically to `public/data.json`. Vite serves it live in dev,
+and `vite build` bundles it into `dist/data.json` for Firebase Hosting.
+
+### Hourly schedule via cron (Linux/WSL)
+
+```cron
+0 * * * * cd /home/emanuel/Projects/dira-behanacha-app && scraper/.venv/bin/python scraper/dira_scraper.py --once >> scraper/scraper.log 2>&1
+```
+
 ## Build
 
 ```bash

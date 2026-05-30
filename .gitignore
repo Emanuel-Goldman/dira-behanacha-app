@@ -1,10 +1,19 @@
 node_modules
+.cursor
 dist
 dist-ssr
 .vite
 .firebase
 firebase-debug.log
 firestore-debug.log
+
+# Python scraper
+scraper/.venv
+scraper/__pycache__
+*.pyc
+
+# The scraper writes this; it's a build artifact, not source.
+public/data.json
 
 *.local
 .env
