@@ -1,23 +1,27 @@
 :root {
   font-family: "Heebo", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   color-scheme: light;
-  background-color: #ffffff;
-  color: #2a2a2a;
+  background-color: #f5f2ea;
+  color: #15130f;
+  --ink: #15130f;
+  --paper: #f5f2ea;
   --surface: #ffffff;
-  --border: #e4e4e4;
-  --border-subtle: #f0f0f0;
-  --text-secondary: #595959;
-  --text-muted: #767676;
-  --accent: #006aff;
-  --accent-hover: #0056cc;
-  --accent-soft: #e8f2ff;
+  --border: #ded7c7;
+  --border-subtle: #e9e3d5;
+  --text-secondary: #55504a;
+  --text-muted: #837a6d;
+  --accent: #1d3fd8;
+  --accent-hover: #142d9e;
+  --accent-soft: #e4e9fb;
+  --accent-ink: #ffffff;
+  --highlight: #f5c518;
   --success-bg: #e1f5e1;
-  --success-text: #007400;
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
-  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.06);
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 12px;
+  --success-text: #1c6b1c;
+  --shadow-sm: 0 1px 2px rgba(21, 19, 15, 0.05);
+  --shadow-md: 0 10px 28px rgba(21, 19, 15, 0.12);
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 10px;
 }
 
 * {
@@ -28,6 +32,7 @@ body {
   margin: 0;
   min-height: 100vh;
   line-height: 1.5;
+  background-color: var(--paper);
 }
 
 a {
@@ -47,32 +52,36 @@ a:hover {
   margin: 0 auto;
 }
 
+/* Flat civic-signage block instead of the soft mint gradient — one saturated
+   color doing the organizing, not decorating. */
 .hero {
   text-align: center;
-  padding: 3.5rem 1.5rem 2.75rem;
-  margin: 0 calc(-1 * clamp(1rem, 4vw, 3rem)) 2rem;
-  background:
-    radial-gradient(ellipse 120% 80% at 50% 100%, #b8dfc0 0%, transparent 55%),
-    radial-gradient(ellipse 90% 60% at 20% 90%, #a8d4b0 0%, transparent 50%),
-    radial-gradient(ellipse 80% 55% at 80% 85%, #9ecfaa 0%, transparent 45%),
-    linear-gradient(180deg, #d4ecd9 0%, #e8f4eb 45%, #ffffff 100%);
+  padding: 4rem 1.5rem 3rem;
+  margin: 0 calc(-1 * clamp(1rem, 4vw, 3rem)) 2.5rem;
+  background: var(--ink);
+  color: var(--paper);
 }
 
 .hero h1 {
-  font-size: clamp(2.5rem, 5.5vw, 3.5rem);
-  font-weight: 700;
-  letter-spacing: -0.025em;
-  margin: 0 0 0.65rem;
-  color: #2a2a2a;
-  line-height: 1.15;
+  font-size: clamp(2.75rem, 8vw, 5rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  margin: 0 0 0.75rem;
+  color: var(--paper);
+  line-height: 0.98;
 }
 
 .subtitle {
   margin: 0 auto 1.75rem;
   max-width: 36rem;
-  color: var(--text-secondary);
+  color: var(--paper);
+  opacity: 0.72;
   font-size: 1.1rem;
   line-height: 1.6;
+}
+
+.subtitle a {
+  color: var(--highlight);
 }
 
 .status-bar {
@@ -90,13 +99,13 @@ a:hover {
 }
 
 .pill {
-  background: var(--success-bg);
-  border: none;
+  background: transparent;
+  border: 1px solid rgba(245, 242, 234, 0.35);
   padding: 0.45rem 0.9rem;
   border-radius: 999px;
   font-weight: 600;
   font-size: 0.875rem;
-  color: var(--success-text);
+  color: var(--paper);
 }
 
 .error {
@@ -111,30 +120,30 @@ a:hover {
 
 .chart-panel {
   border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-md);
   background: var(--surface);
   padding: 2rem clamp(1rem, 3vw, 2.5rem);
-  box-shadow: var(--shadow-sm);
+  box-shadow: none;
 }
 
 .chart-title {
   margin: 0 0 2rem;
   font-size: 1.5rem;
   font-weight: 700;
-  color: #2a2a2a;
+  color: var(--ink);
   text-align: center;
   letter-spacing: -0.02em;
 }
 
 .chart-plot {
-  border-bottom: 1px solid var(--border);
+  border-bottom: 2px solid var(--ink);
   padding-bottom: 0.25rem;
 }
 
 .chart-bars {
   display: flex;
   align-items: flex-end;
-  gap: 0.65rem;
+  gap: 0.75rem;
   overflow-x: auto;
   padding: 0 0.25rem 0.75rem;
 }
@@ -174,21 +183,25 @@ a:hover {
   outline-offset: 2px;
 }
 
+/* Lives inside the dark .hero block on every page that uses it, so it needs
+   light-on-dark contrast rather than the default body text color. */
 .back-link {
   display: inline-block;
   margin-bottom: 1.25rem;
   font-weight: 600;
   font-size: 0.95rem;
-  color: var(--text-secondary);
+  color: var(--paper);
+  opacity: 0.72;
 }
 
 .back-link:hover {
-  color: var(--accent);
+  color: var(--highlight);
+  opacity: 1;
   text-decoration: underline;
 }
 
 .chart-bar-area {
-  width: 2.25rem;
+  width: 22px;
   display: flex;
   align-items: flex-end;
   justify-content: center;
@@ -211,7 +224,7 @@ a:hover {
   font-weight: 600;
   font-size: 0.72rem;
   line-height: 1.25;
-  color: #2a2a2a;
+  color: var(--ink);
   text-align: center;
   word-break: break-word;
   max-width: 100%;
@@ -222,19 +235,19 @@ a:hover {
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   font-size: 0.85rem;
-  color: #2a2a2a;
+  color: var(--ink);
   white-space: nowrap;
   min-height: 1.1em;
 }
 
 .chart-empty {
   border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-md);
   background: var(--surface);
   padding: 3rem;
   text-align: center;
   color: var(--text-secondary);
-  box-shadow: var(--shadow-sm);
+  box-shadow: none;
 }
 
 .footnote {
@@ -249,28 +262,30 @@ a:hover {
 }
 
 .guide-nav-link {
-  font-weight: 600;
+  font-weight: 700;
   font-size: 0.9rem;
-  background: var(--accent);
-  color: #ffffff;
+  background: var(--highlight);
+  color: var(--ink);
   padding: 0.5rem 1.1rem;
   border-radius: var(--radius-sm);
-  transition: background-color 0.15s ease;
+  transition: transform 0.1s ease;
 }
 
 .guide-nav-link:hover {
-  background: var(--accent-hover);
-  color: #ffffff;
+  background: var(--highlight);
+  color: var(--ink);
   text-decoration: none;
+  transform: translateY(-1px);
 }
 
 .guide-section {
   border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
+  border-top: 3px solid var(--accent);
+  border-radius: var(--radius-md);
   background: var(--surface);
   padding: 2rem clamp(1rem, 3vw, 2.5rem);
   margin-bottom: 1.5rem;
-  box-shadow: var(--shadow-sm);
+  box-shadow: none;
 }
 
 .guide-section-title {
@@ -278,8 +293,8 @@ a:hover {
   padding-bottom: 0.75rem;
   border-bottom: 1px solid var(--border-subtle);
   font-size: 1.4rem;
-  font-weight: 700;
-  color: #2a2a2a;
+  font-weight: 800;
+  color: var(--ink);
   letter-spacing: -0.02em;
 }
 
@@ -287,7 +302,7 @@ a:hover {
   margin: 1.25rem 0 0.75rem;
   font-size: 1.05rem;
   font-weight: 700;
-  color: #2a2a2a;
+  color: var(--ink);
 }
 
 .guide-body-text {
@@ -318,9 +333,9 @@ a:hover {
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 50%;
-  background: var(--accent);
-  color: #fff;
+  border-radius: var(--radius-sm);
+  background: var(--ink);
+  color: var(--paper);
   font-weight: 700;
   font-size: 0.9rem;
 }
@@ -328,7 +343,7 @@ a:hover {
 .guide-step-title {
   margin: 0 0 0.35rem;
   font-weight: 700;
-  color: #2a2a2a;
+  color: var(--ink);
 }
 
 .guide-step-body {
@@ -345,22 +360,22 @@ a:hover {
 
 .guide-company-card {
   border: 1px solid var(--border);
-  border-radius: var(--radius-md);
+  border-inline-start: 3px solid var(--accent);
+  border-radius: var(--radius-sm);
   padding: 1.15rem;
-  background: #fafafa;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  background: var(--surface);
+  transition: border-color 0.15s ease;
 }
 
 .guide-company-card:hover {
-  border-color: #c8c8c8;
-  box-shadow: var(--shadow-sm);
+  border-color: var(--accent);
 }
 
 .guide-company-name {
   margin: 0 0 0.35rem;
   font-weight: 700;
   font-size: 1.05rem;
-  color: #2a2a2a;
+  color: var(--ink);
 }
 
 .guide-company-phone {
@@ -393,14 +408,14 @@ a:hover {
   flex-wrap: wrap;
   gap: 0.35rem 0.75rem;
   padding: 0.85rem 1rem;
-  background: #fafafa;
+  background: var(--surface);
   border-radius: var(--radius-sm);
   border: 1px solid var(--border-subtle);
 }
 
 .guide-eligibility-label {
   font-weight: 700;
-  color: #2a2a2a;
+  color: var(--ink);
 }
 
 .guide-eligibility-detail {
@@ -415,9 +430,9 @@ a:hover {
 
 .guide-info-card {
   border: 1px solid var(--border);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-sm);
   padding: 1.15rem;
-  background: #fafafa;
+  background: var(--surface);
 }
 
 .guide-info-card .guide-sub-title {
@@ -437,7 +452,7 @@ a:hover {
 
 .guide-costs {
   border: 1px solid var(--border);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-sm);
   overflow: hidden;
 }
 
@@ -455,7 +470,7 @@ a:hover {
 }
 
 .guide-cost-row--highlight {
-  background: var(--accent-soft);
+  background: var(--highlight);
 }
 
 .guide-cost-label {
@@ -465,7 +480,7 @@ a:hover {
 .guide-cost-amount {
   font-weight: 700;
   font-variant-numeric: tabular-nums;
-  color: #2a2a2a;
+  color: var(--ink);
   white-space: nowrap;
 }
 
