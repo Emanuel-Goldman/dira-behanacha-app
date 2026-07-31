@@ -25,7 +25,9 @@ export default function HomePage() {
           <span className="pill">
             {loading && items.length === 0
               ? 'טוען…'
-              : `${cityStats.length} ערים · ${items.length} הגרלות`}
+              : items.length === 0
+                ? 'אין הגרלות פתוחות כרגע'
+                : `${cityStats.length} ערים · ${items.length} הגרלות`}
           </span>
           <Link to="/guide" className="guide-nav-link">
             מדריך הוצאת אישור זכאות ←

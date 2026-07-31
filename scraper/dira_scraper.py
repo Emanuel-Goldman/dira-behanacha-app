@@ -25,9 +25,18 @@ import requests
 API_URL = "https://dira.moch.gov.il/api/Invoker"
 PAGE_SIZE = 50
 
-# `ProjectStatus=4` is the SPA's "open for registration" filter; with
-# `Entitlement=1` and the empty applicant IDs this returns every currently
-# open lottery (around 80-100 at a time, fitting in two pages of 50).
+# Safety valve on pagination (see fetch_open_lotteries): the loop is expected
+# to stop itself after a couple of pages, this just bounds how much we'd ever
+# hammer the upstream API if that heuristic ever fails to trigger.
+MAX_PAGES = 20
+
+# `ProjectStatus` was assumed to be the SPA's "open for registration" filter,
+# but it is not: requesting every value from 0 to 6 returns byte-identical
+# results (same NumOfRecords, same items), so the upstream API silently
+# ignores it. What it actually returns is the *entire* lottery archive
+# (thousands of records, most closed years ago), newest ApplicationEndDate
+# first. "Open" is therefore something we have to determine ourselves, from
+# each item's own ApplicationEndDate — see fetch_open_lotteries.
 DEFAULT_SEARCH = {
     "firstApplicantIdentityNumber": "",
     "secondApplicantIdentityNumber": "",
@@ -59,7 +68,11 @@ def fetch_page(page_number: int, *, session: requests.Session) -> dict:
     inner = _build_inner_query(
         {
             **DEFAULT_SEARCH,
-            "IsInit": "true" if page_number == 1 else "false",
+            # Was `"false"` for page_number > 1, which turned out to make the
+            # upstream API return zero results no matter the PageNumber —
+            # confirmed by fetching the same PageNumber with IsInit true vs.
+            # false and comparing. Always true is what actually pages.
+            "IsInit": "true",
             "PageNumber": page_number,
             "PageSize": PAGE_SIZE,
         }
@@ -74,18 +87,48 @@ def fetch_page(page_number: int, *, session: requests.Session) -> dict:
     return response.json()
 
 
-def fetch_open_lotteries() -> dict:
-    with requests.Session() as session:
-        page1 = fetch_page(1, session=session)
-        page2 = fetch_page(2, session=session)
+def _is_open(item: dict, *, now: datetime) -> bool:
+    """True if this lottery's registration window has not closed yet.
 
-    items = list(page1.get("ProjectItems") or [])
-    items.extend(page2.get("ProjectItems") or [])
+    We can't ask the upstream API for this directly (see the ProjectStatus
+    note above), so it's computed from the item's own dates. Missing or
+    unparsable ApplicationEndDate is treated as closed rather than raised —
+    a single malformed record among thousands of historical ones shouldn't
+    take down the whole fetch.
+    """
+    end_date = item.get("ApplicationEndDate")
+    if not end_date:
+        return False
+    try:
+        return datetime.fromisoformat(end_date) >= now
+    except ValueError:
+        return False
+
+
+def fetch_open_lotteries() -> dict:
+    # Items come back newest ApplicationEndDate first, so pages of entirely
+    # closed lotteries mean everything after is closed too — stop as soon as
+    # a page contributes nothing open. MAX_PAGES bounds the worst case if
+    # that assumption is ever wrong.
+    now = datetime.now()
+    open_items: list[dict] = []
+
+    with requests.Session() as session:
+        for page_number in range(1, MAX_PAGES + 1):
+            page = fetch_page(page_number, session=session)
+            page_items = page.get("ProjectItems") or []
+            if not page_items:
+                break
+
+            open_on_page = [item for item in page_items if _is_open(item, now=now)]
+            open_items.extend(open_on_page)
+            if not open_on_page:
+                break
 
     return {
-        "items": items,
-        "totalRecords": page1.get("NumOfRecords", len(items)),
-        "openLotteriesCount": page1.get("OpenLotteriesCount", len(items)),
+        "items": open_items,
+        "totalRecords": len(open_items),
+        "openLotteriesCount": len(open_items),
         "fetchedAt": datetime.now(timezone.utc).isoformat(),
     }
 
@@ -106,8 +149,7 @@ def run_once() -> dict:
     data = fetch_open_lotteries()
     write_data(data)
     print(
-        f"[{data['fetchedAt']}] wrote {len(data['items'])} lotteries "
-        f"({data['totalRecords']} reported total) to {OUTPUT_PATH}",
+        f"[{data['fetchedAt']}] wrote {len(data['items'])} open lotteries to {OUTPUT_PATH}",
         flush=True,
     )
     return data
