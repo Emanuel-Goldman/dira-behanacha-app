@@ -1,0 +1,54 @@
+name: Deploy to Firebase Hosting
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Never let two deploys race to publish different builds of the same site.
+concurrency:
+  group: deploy-main
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      # public/data.json is gitignored (the scraper's own output, not
+      # source), so a fresh checkout has none. Without this step every
+      # deploy would ship a build with no data.json at all — the frontend's
+      # 404 error state, not just stale data.
+      - name: Refresh lottery data
+        run: |
+          pip install -r scraper/requirements.txt
+          python scraper/dira_scraper.py --once
+
+      - run: npm run build
+
+      - uses: google-github-actions/auth@v2
+        id: auth
+        with:
+          credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+
+      - name: Deploy hosting
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ steps.auth.outputs.credentials_file_path }}
+        run: |
+          npx --yes firebase-tools@13 deploy --only hosting \
+            --project dira-behanacha \
+            --non-interactive
