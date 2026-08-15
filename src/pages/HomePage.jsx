@@ -42,6 +42,7 @@ export default function HomePage() {
         loading={loading}
         title="אחוז זכייה לפי עיר*"
         ariaLabel="אחוז זכייה לפי עיר"
+        scrollHint="יש עוד ערים — החליקו לצדדים"
         getBarHref={(row) => `/city/${encodeURIComponent(row.label)}`}
       />
 

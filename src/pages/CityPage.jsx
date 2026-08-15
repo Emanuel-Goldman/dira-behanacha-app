@@ -39,6 +39,7 @@ export default function CityPage() {
         loading={loading}
         title="אחוז זכייה לפי פרויקט*"
         ariaLabel={`אחוז זכייה לפי פרויקט ב${city}`}
+        scrollHint="יש עוד פרויקטים — החליקו לצדדים"
         wideColumns
       />
 
