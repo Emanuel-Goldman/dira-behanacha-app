@@ -525,3 +525,63 @@ a:hover {
     min-width: 5rem;
   }
 }
+
+/* The between-rounds panel. Shares the chart panel's card shape so the page
+   keeps its rhythm when there is no chart, with the accent top border the
+   guide sections already use for a content block. */
+.between-rounds {
+  border: 1px solid var(--border);
+  border-top: 3px solid var(--accent);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  padding: 2.5rem clamp(1rem, 3vw, 2.5rem);
+  max-width: 46rem;
+  margin: 0 auto;
+}
+
+.between-rounds-title {
+  margin: 0 0 1rem;
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+
+.between-rounds-lead {
+  margin: 0 0 1rem;
+  line-height: 1.7;
+  color: var(--text-secondary);
+}
+
+.between-rounds-checked {
+  margin: 0 0 2rem;
+  font-size: 0.875rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+}
+
+.between-rounds-subtitle {
+  margin: 0 0 1rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.between-rounds-actions {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 1rem;
+}
+
+.between-rounds-actions li {
+  border-top: 1px solid var(--border-subtle);
+  padding-top: 1rem;
+  line-height: 1.7;
+  color: var(--text-secondary);
+}
+
+.between-rounds-actions strong {
+  color: var(--ink);
+}
