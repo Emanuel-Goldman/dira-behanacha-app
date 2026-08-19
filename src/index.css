@@ -525,3 +525,105 @@ a:hover {
     min-width: 5rem;
   }
 }
+
+/* Who the visitor is, asked before the chart, because the reserved quotas make
+   the same bar mean very different things for different people. Flat panel in
+   the same civic language as .chart-panel rather than a second card style. */
+.profile-panel {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  padding: 1.5rem clamp(1rem, 3vw, 2rem);
+  margin-bottom: 1.5rem;
+}
+
+.profile-title {
+  margin: 0 0 0.5rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: -0.02em;
+}
+
+.profile-intro {
+  margin: 0 0 1.25rem;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  max-width: 44rem;
+}
+
+.profile-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem 2.5rem;
+}
+
+.profile-fieldset {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+
+.profile-legend {
+  padding: 0;
+  margin-bottom: 0.6rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  letter-spacing: 0.02em;
+}
+
+.profile-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+/* The whole chip is the label, so the tap target is the chip and not just the
+   dot beside it — this is the control most likely to be used on a phone. */
+.profile-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--paper);
+  font-size: 0.9rem;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.profile-option:hover {
+  border-color: var(--accent);
+}
+
+.profile-option input {
+  margin: 0;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+/* Keep the selected chip legible without relying on the native dot alone. */
+.profile-option:has(input:checked) {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  font-weight: 700;
+}
+
+.profile-option:focus-within {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.profile-summary {
+  margin: 0 0 1.5rem;
+  padding: 0.9rem 1.1rem;
+  border-right: 4px solid var(--highlight);
+  background: var(--surface);
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--ink);
+}

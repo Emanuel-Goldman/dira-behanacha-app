@@ -1,17 +1,20 @@
 import { Link, useParams } from 'react-router-dom';
 import { useMemo } from 'react';
 import WinProbabilityChart from '../components/WinProbabilityChart.jsx';
+import ProfileSelector from '../components/ProfileSelector.jsx';
 import useLotteryData from '../hooks/useLotteryData.js';
+import useProfile from '../hooks/useProfile.js';
 import { computeProjectWinProbabilities } from '../utils/winProbability.js';
 
 export default function CityPage() {
   const { cityName } = useParams();
   const { items, loading, error } = useLotteryData();
+  const [profile, setProfile] = useProfile();
   const city = decodeURIComponent(cityName ?? '');
 
   const projectStats = useMemo(
-    () => computeProjectWinProbabilities(items, cityName ?? ''),
-    [items, cityName]
+    () => computeProjectWinProbabilities(items, cityName ?? '', profile),
+    [items, cityName, profile]
   );
 
   return (
@@ -34,6 +37,8 @@ export default function CityPage() {
         {error && <div className="error">שגיאה בטעינה: {error}</div>}
       </header>
 
+      <ProfileSelector profile={profile} onChange={setProfile} />
+
       <WinProbabilityChart
         data={projectStats}
         loading={loading}
@@ -44,8 +49,9 @@ export default function CityPage() {
       />
 
       <footer className="footnote">
-        * סיכוי הזכייה מחושב עבור כל פרויקט: מספר דירות בפרויקט ÷ מספר נרשמים
-        בפרויקט × 100.
+        * הסיכוי בכל הגרלה מחושב לפי חמשת שלבי ההגרלה והמכסות השמורות בה, עבור
+        הפרופיל שבחרתם. הרשמה להגרלה נוספת אינה עולה דבר, ולכן הסיכוי המצטבר
+        בהרשמה לכל ההגרלות בעיר גבוה מכל אחת מהן בנפרד.
       </footer>
     </main>
   );

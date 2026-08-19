@@ -1,14 +1,33 @@
 import { Link } from 'react-router-dom';
 import { useMemo } from 'react';
 import WinProbabilityChart from '../components/WinProbabilityChart.jsx';
+import ProfileSelector from '../components/ProfileSelector.jsx';
 import useLotteryData from '../hooks/useLotteryData.js';
-import { computeCityWinProbabilities } from '../utils/winProbability.js';
+import useProfile from '../hooks/useProfile.js';
+import {
+  computeCityWinProbabilities,
+  computeOverallProbability,
+} from '../utils/winProbability.js';
 
 const SOURCE_URL = 'https://dira.moch.gov.il/ProjectsList';
 
+const percentFmt = new Intl.NumberFormat('he-IL', {
+  minimumFractionDigits: 1,
+  maximumFractionDigits: 1,
+});
+
 export default function HomePage() {
   const { items, loading, error } = useLotteryData();
-  const cityStats = useMemo(() => computeCityWinProbabilities(items), [items]);
+  const [profile, setProfile] = useProfile();
+
+  const cityStats = useMemo(
+    () => computeCityWinProbabilities(items, profile),
+    [items, profile]
+  );
+  const overall = useMemo(
+    () => computeOverallProbability(items, profile),
+    [items, profile]
+  );
 
   return (
     <main className="app" dir="rtl">
@@ -37,6 +56,17 @@ export default function HomePage() {
         {error && <div className="error">שגיאה בטעינה: {error}</div>}
       </header>
 
+      <ProfileSelector profile={profile} onChange={setProfile} />
+
+      {/* The headline number the guide is built on: breadth beats choice,
+          because registering for another lottery costs nothing. */}
+      {items.length > 0 && (
+        <p className="profile-summary">
+          אם תירשמו לכל {items.length} ההגרלות הפתוחות, הסיכוי שלכם לזכות באחת מהן
+          הוא <strong>{percentFmt.format(overall)}%</strong>.
+        </p>
+      )}
+
       <WinProbabilityChart
         data={cityStats}
         loading={loading}
@@ -47,9 +77,14 @@ export default function HomePage() {
       />
 
       <footer className="footnote">
-        * סיכוי הזכייה מחושבים על ידי סכימת הדירות המוצעות בעיר חלקי המספר
-        המקסימלי של נרשמים באחד הפרוייקטים בעיר - מספר הדירות בעיר ÷ מקסימום
-        הנרשמים בעיר × 100.
+        * ההגרלה נערכת בחמישה שלבים לפי סדר: נכים, לוחמי מילואים, משרתי מילואים,
+        בני מקום וכלל הזכאים. מי שלא זכה בשלב אחד ממשיך לשלב הבא, ודירות שלא נוצלו
+        במכסה עוברות הלאה. לכן הסיכוי בעיר הוא הסיכוי לזכות לפחות באחת מההגרלות
+        שלה, לפי הפרופיל שבחרתם, ולא מספר הדירות חלקי מספר הנרשמים.{' '}
+        <a href="/research" target="_blank" rel="noreferrer">
+          המחקר המלא שמאחורי החישוב
+        </a>
+        .
       </footer>
     </main>
   );

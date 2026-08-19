@@ -27,9 +27,13 @@ python dira_scraper.py
 
 # Custom interval (seconds)
 python dira_scraper.py --interval 600
+
+# Tests for the odds model (Node's built-in runner, no framework installed)
+npm test
 ```
 
-No test suite, no linter configured.
+No linter configured. `npm test` covers `src/utils/winProbability.js` only; there are no
+component tests.
 
 ## Architecture
 
@@ -51,15 +55,39 @@ Routes are registered in `src/App.jsx` using React Router v6 `BrowserRouter`:
 
 | Route | Component | Description |
 |---|---|---|
-| `/` | `HomePage` | City-level win probability chart + summary counts |
-| `/city/:cityName` | `CityPage` | Project-level chart for a single city |
+| `/` | `HomePage` | Profile selector, combined chance across every open lottery, city-level chart |
+| `/city/:cityName` | `CityPage` | Profile selector and a per-lottery chart for one city |
 | `/guide` | `ZkautGuide` | Static eligibility certificate guide — no data fetching |
 
 `WinProbabilityChart` (`src/components/WinProbabilityChart.jsx`) is the only shared UI component; it renders a horizontal bar chart and is used by both `HomePage` and `CityPage`.
 
-Win probability formulas (from `src/utils/winProbability.js`):
-- **City view**: `sum(LotteryApparmentsNum for city) ÷ max(TotalSubscribers in city) × 100`
-- **Project view**: `LotteryApparmentsNum ÷ TotalSubscribers × 100`
+### Win probability
+
+`src/utils/winProbability.js` implements the **five-stage** model, ported from
+`research/odds_model.py` and validated against it to the last digit on the May 2026 round.
+
+The draw is not one raffle. It runs in five sequential stages — נכים, לוחמי מילואים,
+משרתי מילואים, בני מקום, כלל הזכאים — each with a reserved slice of the apartments taken from
+the record's own fields (`HousingUnitsForHandicapped`, `HU_CombatReservist_L`, `HU_Reservists_L`,
+`LocalHousing`). A loser at one stage carries into the next, and a slice no one claimed cascades
+forward. So a person's chance in one lottery is `1 − Π(1 − pᵢ)` over the stages their profile
+enters, and a city's is `1 − Π(1 − p)` over its lotteries.
+
+**The probability is therefore a function of the visitor's profile, not of the city alone.** The
+old `apartments ÷ subscribers` was the average over all registrants: about 3.5× too high for
+someone with no priority and 5× too low for a בן מקום. In קריית גת, May 2026, it showed 5.6%
+where the real figures are 1.6% with no priority, 28.3% for a בן מקום and 24.0% for a combat
+reservist.
+
+Two pool sizes are **estimated**, because the ministry stopped publishing them in August 2025:
+the reservist pool falls back to 16.6% of registrants and the combat pool to half of that. Both
+are exported as `DEFAULT_RESERVIST_SHARE` and `DEFAULT_COMBAT_FRACTION`; the combat fraction is
+the model's weakest number.
+
+The visitor's profile is `{ service, local }`, held by `useProfile` (`src/hooks/useProfile.js`)
+and persisted to `localStorage` under `dira-behanacha:profile`, which is why it survives a
+navigation from the home page to a city page. Anything stored that this version does not
+recognise falls back to the default rather than rendering NaN bars.
 
 The full content spec for `ZkautGuide` (steps, companies, eligibility groups, documents, costs, CSS classes) lives in `.cursor/rules/zkaut-guide-page.mdc`.
 
@@ -81,6 +109,8 @@ The scraper writes and the frontend reads this shape:
 `totalRecords`/`openLotteriesCount` are just `len(items)`, computed locally — see the ProjectStatus note below for why they can't come from the upstream response. It's normal for `items` to be empty: the government publishes lotteries in occasional batches, so there can be real gaps with zero open lotteries.
 
 The frontend maps `items[].CityDescription`, `NeighborhoodName`, `ContractorDescription`, `EntitlementDescription`, `ApplicationEndDate`, `LotteryApparmentsNum`, `TotalSubscribers`, `PricePerUnit`, `ProjectNumber`, and `LotteryNumber` — all raw fields from the upstream response, passed through unchanged.
+
+The odds model additionally reads `HousingUnitsForHandicapped`, `HU_CombatReservist_L`, `HU_Reservists_L`, `LocalHousing`, `TotalLocalSubscribers`, `TotalHandicappedSubscribers`, `TotalReservedDutySubscribers` and `TotalCombatReservistSubscribers`. The scraper passes items through untouched, so these arrive for free — but **anything that trims fields on the way into `data.json` silently degrades the probabilities to the general-draw-only case** rather than failing.
 
 ## Upstream API details
 
