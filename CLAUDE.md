@@ -55,11 +55,15 @@ Routes are registered in `src/App.jsx` using React Router v6 `BrowserRouter`:
 
 | Route | Component | Description |
 |---|---|---|
-| `/` | `HomePage` | Profile selector, combined chance across every open lottery, city-level chart |
+| `/` | `HomePage` | Profile selector, combined chance across every open lottery, city-level chart — or the between-rounds panel when no lottery is open |
 | `/city/:cityName` | `CityPage` | Profile selector and a per-lottery chart for one city |
 | `/guide` | `ZkautGuide` | Static eligibility certificate guide — no data fetching |
 
-`WinProbabilityChart` (`src/components/WinProbabilityChart.jsx`) is the only shared UI component; it renders a horizontal bar chart and is used by both `HomePage` and `CityPage`.
+`WinProbabilityChart` (`src/components/WinProbabilityChart.jsx`) renders the horizontal bar chart and is the one component shared by `HomePage` and `CityPage`.
+
+`NoOpenLotteries` (`src/components/NoOpenLotteries.jsx`) is used by `HomePage` only. It replaces the chart when the fetch succeeded and returned zero open lotteries — a state the site sits in for weeks at a time between rounds, where the chart's bare "אין נתונים להצגה" made the site look broken. It explains that a gap is normal, shows `fetchedAt` as proof the data is current, and points at the two things worth doing between rounds: the eligibility guide and `/research`. `HomePage` only picks it when `!loading && !error && items.length === 0`, so a failed fetch still reads as an error and a pending one still reads as loading.
+
+There is deliberately no countdown and no email-alert signup there: the upstream API publishes no date for the next round, and there is no backend to collect an address.
 
 ### Win probability
 
@@ -106,7 +110,7 @@ The scraper writes and the frontend reads this shape:
 }
 ```
 
-`totalRecords`/`openLotteriesCount` are just `len(items)`, computed locally — see the ProjectStatus note below for why they can't come from the upstream response. It's normal for `items` to be empty: the government publishes lotteries in occasional batches, so there can be real gaps with zero open lotteries.
+`totalRecords`/`openLotteriesCount` are just `len(items)`, computed locally — see the ProjectStatus note below for why they can't come from the upstream response. It's normal for `items` to be empty: the government publishes lotteries in occasional batches, so there can be real gaps with zero open lotteries. That is what `NoOpenLotteries` renders — an empty `items` is data, not a failure.
 
 The frontend maps `items[].CityDescription`, `NeighborhoodName`, `ContractorDescription`, `EntitlementDescription`, `ApplicationEndDate`, `LotteryApparmentsNum`, `TotalSubscribers`, `PricePerUnit`, `ProjectNumber`, and `LotteryNumber` — all raw fields from the upstream response, passed through unchanged.
 

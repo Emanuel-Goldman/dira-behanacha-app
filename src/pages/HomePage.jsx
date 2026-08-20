@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useMemo } from 'react';
+import NoOpenLotteries from '../components/NoOpenLotteries.jsx';
 import WinProbabilityChart from '../components/WinProbabilityChart.jsx';
 import ProfileSelector from '../components/ProfileSelector.jsx';
 import useLotteryData from '../hooks/useLotteryData.js';
@@ -17,7 +18,7 @@ const percentFmt = new Intl.NumberFormat('he-IL', {
 });
 
 export default function HomePage() {
-  const { items, loading, error } = useLotteryData();
+  const { data, items, loading, error } = useLotteryData();
   const [profile, setProfile] = useProfile();
 
   const cityStats = useMemo(
@@ -28,6 +29,12 @@ export default function HomePage() {
     () => computeOverallProbability(items, profile),
     [items, profile]
   );
+
+  // "No open lottery" is a real, expected state between rounds — not a load
+  // failure and not a still-loading page. Only that case gets the explanatory
+  // panel; a fetch that failed still belongs to the error message above, and a
+  // fetch still in flight belongs to the chart's own loading state.
+  const isBetweenRounds = !loading && !error && items.length === 0;
 
   return (
     <main className="app" dir="rtl">
@@ -67,25 +74,32 @@ export default function HomePage() {
         </p>
       )}
 
-      <WinProbabilityChart
-        data={cityStats}
-        loading={loading}
-        title="אחוז זכייה לפי עיר*"
-        ariaLabel="אחוז זכייה לפי עיר"
-        scrollHint="יש עוד ערים — החליקו לצדדים"
-        getBarHref={(row) => `/city/${encodeURIComponent(row.label)}`}
-      />
+      {isBetweenRounds ? (
+        <NoOpenLotteries fetchedAt={data?.fetchedAt} />
+      ) : (
+        <WinProbabilityChart
+          data={cityStats}
+          loading={loading}
+          title="אחוז זכייה לפי עיר*"
+          ariaLabel="אחוז זכייה לפי עיר"
+          scrollHint="יש עוד ערים — החליקו לצדדים"
+          getBarHref={(row) => `/city/${encodeURIComponent(row.label)}`}
+        />
+      )}
 
-      <footer className="footnote">
-        * ההגרלה נערכת בחמישה שלבים לפי סדר: נכים, לוחמי מילואים, משרתי מילואים,
-        בני מקום וכלל הזכאים. מי שלא זכה בשלב אחד ממשיך לשלב הבא, ודירות שלא נוצלו
-        במכסה עוברות הלאה. לכן הסיכוי בעיר הוא הסיכוי לזכות לפחות באחת מההגרלות
-        שלה, לפי הפרופיל שבחרתם, ולא מספר הדירות חלקי מספר הנרשמים.{' '}
-        <a href="/research" target="_blank" rel="noreferrer">
-          המחקר המלא שמאחורי החישוב
-        </a>
-        .
-      </footer>
+      {/* The footnote explains the chart's formula, so it goes with the chart. */}
+      {!isBetweenRounds && (
+        <footer className="footnote">
+          * ההגרלה נערכת בחמישה שלבים לפי סדר: נכים, לוחמי מילואים, משרתי מילואים,
+          בני מקום וכלל הזכאים. מי שלא זכה בשלב אחד ממשיך לשלב הבא, ודירות שלא נוצלו
+          במכסה עוברות הלאה. לכן הסיכוי בעיר הוא הסיכוי לזכות לפחות באחת מההגרלות
+          שלה, לפי הפרופיל שבחרתם, ולא מספר הדירות חלקי מספר הנרשמים.{' '}
+          <a href="/research" target="_blank" rel="noreferrer">
+            המחקר המלא שמאחורי החישוב
+          </a>
+          .
+        </footer>
+      )}
     </main>
   );
 }
